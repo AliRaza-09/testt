@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine 💖</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(-45deg, #ff9eb5, #ffb6c1, #ff8fab, #ffc2d1);
+    background-size: 400% 400%;
+    animation: gradientShift 12s ease infinite;
+    overflow: hidden;
+    color: white;
+}
+
+@keyframes gradientShift {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+h1 {
+    margin-top: 60px;
+    font-size: 2.8em;
+    text-shadow: 0 0 25px #ff1493;
+}
+
+.bigBox {
+    margin-top: 60px;
+    width: 70%;
+    max-width: 900px;
+    height: 420px;
+    border-radius: 35px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(25px);
+    box-shadow: 0 20px 60px rgba(255,20,147,0.5);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 60px;
+}
+
+#messageBox {
+    position: absolute;
+    top: 40px;
+    font-size: 1.4em;
+    transition: opacity 0.3s ease;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    gap: 40px;
+    position: relative;
+}
+
+button {
+    width: 150px;
+    height: 55px;
+    font-size: 18px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+#yesBtn {
+    background: #ff1493;
+    color: white;
+}
+
+#noBtn {
+    background: white;
+    color: #ff1493;
+}
+
+/* Gift Cards */
+.giftContainer {
+    margin-top: 80px;
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+}
+
+.giftCard {
+    width: 260px;
+    height: 190px;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(30px);
+    box-shadow: 0 20px 50px rgba(255,20,147,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-size: 1.3em;
+}
+
+.giftCard:hover {
+    transform: scale(1.08);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s ease;
+    z-index: 9999;
+}
+
+.modalContent {
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(30px);
+    padding: 50px 80px;
+    border-radius: 30px;
+    font-size: 1.5em;
+    transform: scale(0.7);
+    transition: 0.4s ease;
+}
+
+.modal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal.show .modalContent {
+    transform: scale(1);
+}
+
+/* Confetti */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 14px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Floating Emojis */
+.backgroundEmoji {
+    position: absolute;
+    font-size: 35px;
+    opacity: 0.9;
+    animation: floatUp 18s linear forwards;
+    z-index: -1;
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100vh); }
+    to { transform: translateY(-10vh); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainTitle">Ammaaa! Will You Be My Valentine? 💖</h1>
+
+<div class="bigBox" id="firstScreen">
+    <div id="messageBox"></div>
+    <div class="buttons">
+        <button id="yesBtn">Yes 💘</button>
+        <button id="noBtn">No 🙈</button>
+    </div>
+</div>
+
+<div class="modal" id="giftModal">
+    <div class="modalContent" id="modalText"></div>
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const messageBox = document.getElementById("messageBox");
+
+let yesScale = 1;
+let moveX = 0;
+let moveY = 0;
+
+/* Cute changing messages */
+const messages = [
+    "Are you really sure? 🥺",
+    "Think again, cutie 💕",
+    "My heart is fragile you know 😭💖",
+    "The stars already chose YES 🌟💘",
+    "Destiny is watching you 👀✨",
+    "You can’t escape love that easily 😏💞",
+    "Come onnnn, don’t break my heart 🥹💔",
+    "Say yes and make my day 🌹😍",
+    "I promise unlimited hugs 🤗💗",
+    "Last chance before I cry dramatically 😭🎭"
+];
+
+let lastMessageIndex = -1;
+
+/* Move NO button */
+function moveNo() {
+    const box = document.querySelector(".bigBox");
+    const rect = box.getBoundingClientRect();
+
+    const maxX = rect.width / 2.5;
+    const maxY = rect.height / 3;
+
+    moveX = (Math.random() - 0.5) * maxX;
+    moveY = (Math.random() - 0.5) * maxY;
+
+    noBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+    // Prevent same message twice
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * messages.length);
+    } while (randomIndex === lastMessageIndex);
+
+    lastMessageIndex = randomIndex;
+
+    messageBox.style.opacity = 0;
+    setTimeout(() => {
+        messageBox.innerText = messages[randomIndex];
+        messageBox.style.opacity = 1;
+    }, 150);
+
+    yesScale += 0.12;
+    yesBtn.style.transform = `scale(${yesScale})`;
+}
+
+noBtn.addEventListener("mouseenter", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
+
+/* YES click */
+yesBtn.addEventListener("click", () => {
+    explodeConfetti();
+    showGifts();
+});
+
+/* Gift screen */
+function showGifts() {
+    document.getElementById("firstScreen").remove();
+    document.getElementById("mainTitle").innerText = "Yayyyyy!!! 💖";
+
+    const container = document.createElement("div");
+    container.className = "giftContainer";
+    container.innerHTML = `
+        <div class="giftCard" onclick="openModal('It’s a surprise 🎁 You’ll get it soon 💖')">
+            🎁 Hidden Surprise
+        </div>
+        <div class="giftCard" onclick="openModal('Tell me what you want 💝 It’s your choice!')">
+            💝 Choose Your Gift
+        </div>
+    `;
+    document.body.appendChild(container);
+}
+
+/* Modal */
+function openModal(text){
+    const modal = document.getElementById("giftModal");
+    document.getElementById("modalText").innerText = text;
+    modal.classList.add("show");
+    modal.onclick = () => modal.classList.remove("show");
+}
+
+/* Confetti */
+function explodeConfetti(){
+    const colors=["#ff0a54","#ff477e","#ff85a1","#fbb1bd","#f9bec7"];
+    const centerX=window.innerWidth/2;
+    const centerY=window.innerHeight/2;
+
+    for(let i=0;i<250;i++){
+        const c=document.createElement("div");
+        c.classList.add("confetti");
+        c.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+        c.style.left=centerX+"px";
+        c.style.top=centerY+"px";
+        document.body.appendChild(c);
+
+        const angle=Math.random()*2*Math.PI;
+        const speed=Math.random()*12+6;
+        let x=centerX;
+        let y=centerY;
+        let vx=Math.cos(angle)*speed;
+        let vy=Math.sin(angle)*speed;
+
+        function anim(){
+            x+=vx;
+            y+=vy;
+            vy+=0.4;
+            c.style.left=x+"px";
+            c.style.top=y+"px";
+            if(y<window.innerHeight) requestAnimationFrame(anim);
+            else c.remove();
+        }
+        anim();
+    }
+}
+
+/* Floating emojis */
+setInterval(()=>{
+    const emojis=["💖","💋","🧸","🌹","💕","💘","😍","😘"];
+    const e=document.createElement("div");
+    e.classList.add("backgroundEmoji");
+    e.innerText=emojis[Math.floor(Math.random()*emojis.length)];
+    e.style.left=Math.random()*window.innerWidth+"px";
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),18000);
+},700);
+</script>
+
+</body>
+</html>
